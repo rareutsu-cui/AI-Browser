@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface UseResizeObserverOptions {
-  onResize?: (size: { width: number; height: number }) => void;
+  onResize?: (size: { x: number; y: number; width: number; height: number }) => void;
 }
 
 export const useResizeObserver = <T extends HTMLElement>(
@@ -9,6 +9,8 @@ export const useResizeObserver = <T extends HTMLElement>(
 ) => {
   const [size, setSize] = useState<{ width?: number; height?: number }>({});
   const ref = useRef<T>(null);
+  const lastRectRef = useRef('');
+
   const onResizeRef = useRef(options?.onResize);
   onResizeRef.current = options?.onResize;
 
@@ -18,9 +20,17 @@ export const useResizeObserver = <T extends HTMLElement>(
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (entry) {
-        const { width, height } = entry.contentRect;
-        setSize({ width, height });
-        onResizeRef.current?.({ width, height });
+        const { x, y, width, height } = entry.target.getBoundingClientRect();
+
+        const key = [x, y, width, height]
+          .map((v) => Math.round(v * 100) / 100).join(',');
+        if (key === lastRectRef.current) return;
+        lastRectRef.current = key;
+        setSize((previous) =>
+          previous.width === width && previous.height === height
+            ? previous : { width, height });
+
+        onResizeRef.current?.({ x, y, width, height });
       }
     });
 

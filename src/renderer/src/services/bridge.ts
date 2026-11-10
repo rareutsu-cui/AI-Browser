@@ -167,7 +167,7 @@ function sendText(text: string, sendToAll: boolean): void {
   send('send_text', { scripts, sendToAll });
 }
 
-let latestBrowserSize: { width: number; height: number } | null = null;
+let latestBrowserSize: { x: number; y: number; width: number; height: number } | null = null;
 let isBrowserSizeQueued = false;
 
 /**
@@ -175,7 +175,7 @@ let isBrowserSizeQueued = false;
  * 実行時点の最新値を送る。また init より先に届くと、起動直後の一時的な小さい幅が
  * 保存済みの幅を上書きし、init がその値を返してしまうため、init の完了を待ってから送る。
  */
-function sendBrowserSize(size: { width: number; height: number }): void {
+function sendBrowserSize(size: { x: number; y: number; width: number; height: number }): void {
   latestBrowserSize = size;
   if (isBrowserSizeQueued) return;
   isBrowserSizeQueued = true;

@@ -134,8 +134,16 @@ export function useTabManager(): UseTabManagerReturn {
       }
 
       // 最初のタブを選択
-      if (allTabs.length > 0) {
-        setActiveTabId(allTabs[0].id);
+      const firstTab = allTabs.find(
+        (t) => t.type === 'terminal' && initialEnabledTabs[t.id] !== false,
+      ) ?? allTabs.find((t) => initialEnabledTabs[t.id] === true);
+      if (firstTab) {
+        setActiveTabId(firstTab.id);
+        appBridge.sendBrowserTabIndexToMain(
+          firstTab.type === 'terminal'
+            ? -1
+            : BROWSERS.findIndex((b) => b.id === firstTab.id),
+        );
       }
     });
   }, []);

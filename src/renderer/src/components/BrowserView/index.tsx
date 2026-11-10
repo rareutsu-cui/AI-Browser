@@ -80,7 +80,12 @@ export const BrowserView = forwardRef<HTMLDivElement, BrowserViewProps>(
     }, []);
 
     return (
-      <Box sx={{ height: '100%' }}>
+      <Box sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
         <TabBar
           isInitialized={isInitialized}
           visibleTabs={

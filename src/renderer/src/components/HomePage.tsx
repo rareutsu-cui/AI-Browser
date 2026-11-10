@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Allotment, type AllotmentHandle } from 'allotment';
 
 import { appBridge } from '../services/bridge';
 import 'allotment/dist/style.css';
@@ -76,10 +75,10 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
   } | null>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editorIndex, setEditorIndex] = useState(0);
   const [language, setLanguage] = useState('plaintext');
   const [fontSize, setFontSize] = useState(15);
-  const [preferredSize, setPreferredSize] = useState(500);
   const [commandKey, setCommandKey] = useState('Ctrl');
   const [osInfo, setOsInfo] = useState('');
   const [isAppImage, setIsAppImage] = useState(false);
@@ -99,8 +98,8 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
   const theme = useTheme();
 
   const { ref: browserRef } = useResizeObserver<HTMLDivElement>({
-    onResize: ({ width, height }) => {
-      appBridge.sendBrowserSizeToMain({ width, height });
+    onResize: ({ x, y, width, height }) => {
+      appBridge.sendBrowserSizeToMain({ x, y, width, height });
       editorsRef.current?.layoutAll();
     },
   });
@@ -119,7 +118,6 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
   const newerLogButtonTouchRippleRef = useRef<TouchRippleActions>(null);
   const olderLogButtonTouchRippleRef = useRef<TouchRippleActions>(null);
 
-  const editorSplitRef = useRef<AllotmentHandle | null>(null);
   const editorPaneRef = useRef<HTMLDivElement>(null);
   const editorsRef = useRef<MonacoEditorsHandle>(null);
 
@@ -187,11 +185,7 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
         setDarkMode(settings.isDarkMode);
         terminalService.setTheme(settings.isDarkMode ? 'dark' : 'light');
         setEditorIndex(settings.editorMode);
-        setPreferredSize(settings.browserWidth);
         setIsInitialized(true);
-        setTimeout(() => {
-          editorSplitRef.current?.reset();
-        }, 100);
         // settings.logs は { id, text }[] なので、Log 型に必要な displayText を生成してから保存する
         setLogs(
           settings.logs.map((log: { id: number; text: string }) => {
@@ -477,11 +471,27 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
 
   return (
     <Box
-      sx={{ height: '100vh', borderTop: 1, borderColor: theme.palette.divider }}
+      sx={{ height: '100vh', boxSizing: 'border-box', overflow: 'hidden', borderTop: 1, borderColor: theme.palette.divider }}
       component="main"
     >
-      <Allotment ref={editorSplitRef}>
-        <Allotment.Pane minSize={370} preferredSize={preferredSize}>
+      <button
+        type="button"
+        aria-expanded={isEditorOpen}
+        onClick={() => setIsEditorOpen((open) => !open)}
+        style={{
+          position: 'fixed', top: 8, right: 48, zIndex: 2000,
+          border: '1px solid #7655ff', borderRadius: 16,
+          padding: '6px 12px', background: '#fff',
+          color: '#5630cc', cursor: 'pointer',
+        }}
+      >
+        {isEditorOpen ? 'エディタを閉じる' : 'エディタを開く'}
+      </button>
+
+      <Box sx={{ display: 'grid', gridTemplateRows: isEditorOpen
+      ? 'minmax(0, 3fr) minmax(0, 2fr)'
+      : 'minmax(0, 1fr) 0px', height: '100%', overflow: 'hidden' }}>
+        <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
           <BrowserView
             ref={browserRef}
             tabs={tabs}
@@ -493,8 +503,8 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
             onToggleTabEnabled={handleToggleTabEnabled}
             onTabReorder={handleTabReorder}
           />
-        </Allotment.Pane>
-        <Allotment.Pane minSize={530}>
+        </Box>
+        <Box sx={{ minWidth: 0, minHeight: 0, overflow: 'hidden', display: isEditorOpen ? 'block' : 'none', borderTop: 1, borderColor: theme.palette.divider, boxSizing: 'border-box' }}>
           <EditorView
             ref={editorPaneRef}
             isChipVisible={isChipVisible}
@@ -567,8 +577,8 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
             osInfo={osInfo}
             isAppImage={isAppImage}
           />
-        </Allotment.Pane>
-      </Allotment>
+        </Box>
+      </Box>
     </Box>
   );
 };

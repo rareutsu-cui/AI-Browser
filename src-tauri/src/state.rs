@@ -164,7 +164,10 @@ impl AppState {
     pub fn normalize(&mut self, browser_ids: &[String], terminal_ids: &[String]) {
         // ブラウザ構成が変わっていたら有効状態とタブ順序をリセット
         if !same_keys(&self.enabled_browsers, browser_ids) {
-            self.enabled_browsers = browser_ids.iter().map(|id| (id.clone(), true)).collect();
+            self.enabled_browsers.retain(|id, _| browser_ids.contains(id));
+            for id in browser_ids {
+                self.enabled_browsers.entry(id.clone()).or_insert(false);
+            }
             self.tab_orders.clear();
         }
 
@@ -299,7 +302,7 @@ mod tests {
         state.enabled_browsers.insert("OLD".into(), false);
         state.tab_orders.insert("OLD".into(), 3.0);
         state.normalize(&ids(&["CHATGPT", "NANI"]), &ids(&["TERMINAL_1"]));
-        assert_eq!(state.enabled_browsers.get("CHATGPT"), Some(&true));
+        assert_eq!(state.enabled_browsers.get("CHATGPT"), Some(&false));
         assert!(!state.enabled_browsers.contains_key("OLD"));
         assert!(state.tab_orders.is_empty());
         assert_eq!(state.send_targets.get("NANI"), Some(&false));

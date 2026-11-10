@@ -4,6 +4,8 @@
 //! その上に AI サービスごとの子 WebView（"svc-<ID>"）を重ねる（views.rs）。
 //! IPC は capabilities/default.json で "ui" だけに許可している。
 
+#[cfg(target_os = "linux")]
+mod linux_layout;
 mod keys;
 mod migrate;
 mod state;
@@ -183,14 +185,15 @@ async fn current_urls(app: AppHandle) -> Vec<String> {
 }
 
 #[tauri::command]
-async fn set_browser_size(app: AppHandle, width: f64, height: f64) -> Result<(), String> {
-    if width <= 0.0 || height <= 0.0 {
+async fn set_browser_size(app: AppHandle, x: f64, y: f64, width: f64, height: f64) -> Result<(), String> {
+    if ![x, y, width, height].iter().all(|v| v.is_finite())
+        || x < 0.0 || y < 0.0 || width <= 0.0 || height <= 0.0 {
         return Ok(());
     }
     // ブラウザ側ペインの幅を覚えておき、次回起動時に UI の初期幅にする（Electron 版と同じ）。
     // bridge.ts は init の完了後にしか送らないので、初期レイアウト前の仮の幅では上書きされない
     app.state::<Shared>().state.lock().unwrap().browser_width = width;
-    views::resize_visible(&app, width, height)
+    views::resize_visible(&app, x, y, width, height)
 }
 
 #[tauri::command]
@@ -375,6 +378,11 @@ fn create_main_window(app: &AppHandle) -> tauri::Result<()> {
         LogicalPosition::new(0.0, 0.0),
         LogicalSize::new(inner.width, inner.height),
     )?;
+
+    #[cfg(target_os = "linux")]
+    if let Some(ui) = app.get_webview(UI_WEBVIEW) {
+        linux_layout::install(&ui)?;
+    }
 
     let event_app = app.clone();
     window.on_window_event(move |event| {

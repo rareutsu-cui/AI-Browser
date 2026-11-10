@@ -16,7 +16,9 @@ export const ContentArea = forwardRef<HTMLDivElement, ContentAreaProps>(
     return (
       <Box
         sx={{
-          height: 'calc(100% - 100px)',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden',
           textAlign: isTerminalActive ? 'left' : 'center',
           position: 'relative',
         }}

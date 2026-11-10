@@ -63,7 +63,7 @@ pub struct Views {
     pub current_index: usize,
     pub is_terminal_active: bool,
     /// レンダラーが測ったブラウザ表示領域（幅・高さ）
-    pub content_size: Option<(f64, f64)>,
+    pub content_size: Option<(f64, f64, f64, f64)>,
     initial_load_done: Vec<bool>,
     created: bool,
 }
@@ -83,11 +83,11 @@ pub fn view_label(id: &str) -> String {
 /// レンダラーから表示領域の大きさが届く前は、保存済みの幅とウィンドウの高さから求める。
 fn visible_rect<R: Runtime>(
     window: &Window<R>,
-    content_size: Option<(f64, f64)>,
+    content_size: Option<(f64, f64, f64, f64)>,
     browser_width: f64,
 ) -> Rect {
-    let (width, height) = match content_size {
-        Some((w, h)) => (w - 2.0, h - 8.0),
+    let (x, y, width, height) = match content_size {
+        Some(bounds) => bounds,
         None => {
             let inner = window
                 .inner_size()
@@ -95,11 +95,11 @@ fn visible_rect<R: Runtime>(
                 .zip(window.scale_factor().ok())
                 .map(|(size, scale)| size.to_logical::<f64>(scale));
             let win_height = inner.map(|s| s.height).unwrap_or(800.0);
-            (browser_width - 2.0, win_height - VIEW_TOP - 8.0)
+            (0.0, VIEW_TOP, browser_width - 2.0, win_height - VIEW_TOP - 8.0)
         }
     };
     Rect {
-        position: LogicalPosition::new(0.0, VIEW_TOP).into(),
+        position: LogicalPosition::new(x, y).into(),
         size: LogicalSize::new(width.max(1.0), height.max(1.0)).into(),
     }
 }
@@ -112,6 +112,22 @@ fn service_webview<R: Runtime>(app: &AppHandle<R>, id: &str) -> Option<Webview<R
     app.get_webview(&view_label(id))
 }
 
+
+fn set_service_bounds<R: Runtime>(
+    webview: &Webview<R>,
+    rect: Rect,
+) -> Result<(), String> {
+    #[cfg(target_os = "linux")]
+    {
+        crate::linux_layout::set_bounds(webview, rect)
+            .map_err(|e| e.to_string())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        webview.set_bounds(rect).map_err(|e| e.to_string())
+    }
+}
+
 /// 全サービスの子 WebView を作る。
 /// 2 回目以降（開発中の UI のリロードなど）は作り直さず、定義を更新して表示を起動直後と
 /// 同じ状態（先頭タブを表示）に戻す。リロード後の UI は先頭タブを選んだ状態で始まるため。
@@ -120,7 +136,7 @@ pub fn create_all<R: Runtime>(app: &AppHandle<R>, defs: Vec<BrowserDef>) -> Resu
     let window = main_window(app).ok_or("main window not found")?;
     let browser_width = shared.state.lock().unwrap().browser_width;
 
-    let (content_size, current_index) = {
+    let (content_size, _current_index) = {
         let mut views = shared.views.lock().unwrap();
         if views.created {
             // WebView のラベルは ID から決まるため、ID の並びが同じときだけ定義を差し替える
@@ -130,10 +146,11 @@ pub fn create_all<R: Runtime>(app: &AppHandle<R>, defs: Vec<BrowserDef>) -> Resu
                 views.defs = defs;
             }
             views.current_index = 0;
-            views.is_terminal_active = false;
+            views.is_terminal_active = true;
             drop(views);
             return apply_visibility(app);
         }
+        views.is_terminal_active = true;
         views.created = true;
         views.urls = defs.iter().map(|d| d.url.clone()).collect();
         views.initial_load_done = vec![false; defs.len()];
@@ -146,7 +163,14 @@ pub fn create_all<R: Runtime>(app: &AppHandle<R>, defs: Vec<BrowserDef>) -> Resu
     // 表示中以外のタブは初回ロード完了時に hide() する。
     let rect = visible_rect(&window, content_size, browser_width);
     // index はレンダラーの BROWSERS 配列での位置（タブ選択やローディング通知と揃える）
+    let enabled = shared.state.lock().unwrap().enabled_browsers.clone();
+    let mut created_count = 0;
     for (index, def) in defs.iter().enumerate() {
+        if enabled.get(&def.id) != Some(&true) {
+            continue;
+        }
+        log::info!("AI WebView を生成: {}", def.id);
+        created_count += 1;
         let url: Url = def.url.parse().map_err(|e| format!("{}: {e}", def.url))?;
         let builder = WebviewBuilder::new(view_label(&def.id), WebviewUrl::External(url))
             .on_page_load(move |webview, payload| {
@@ -158,14 +182,16 @@ pub fn create_all<R: Runtime>(app: &AppHandle<R>, defs: Vec<BrowserDef>) -> Resu
         window
             .add_child(with_browser_args(builder), rect.position, rect.size)
             .map_err(|e| format!("{}: {e}", def.id))?;
+        #[cfg(target_os = "linux")]
+        if let Some(webview) = service_webview(app, &def.id) {
+            set_service_bounds(&webview, rect)?;
+        }
     }
 
-    log::info!("子 WebView を {} 個作成しました", defs.len());
+    log::info!("起動時の AI WebView: {} 個", created_count);
 
     // 生成中に別タブが選ばれていた場合に備えて表示を揃える
-    if current_index != 0 {
-        apply_visibility(app)?;
-    }
+    apply_visibility(app)?;
     Ok(())
 }
 
@@ -231,7 +257,7 @@ pub fn apply_visibility<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
             continue;
         };
         if Some(i) == visible {
-            webview.set_bounds(rect).map_err(|e| e.to_string())?;
+            set_service_bounds(&webview, rect)?;
             webview.show().map_err(|e| e.to_string())?;
         } else {
             webview.hide().map_err(|e| e.to_string())?;
@@ -241,20 +267,20 @@ pub fn apply_visibility<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
 }
 
 /// レンダラーから表示領域の大きさが届いたとき。表示中のタブだけサイズを合わせる。
-pub fn resize_visible<R: Runtime>(app: &AppHandle<R>, width: f64, height: f64) -> Result<(), String> {
+pub fn resize_visible<R: Runtime>(app: &AppHandle<R>, x: f64, y: f64, width: f64, height: f64) -> Result<(), String> {
     let shared = app.state::<Shared>();
     let window = main_window(app).ok_or("main window not found")?;
     shared.state.lock().unwrap().browser_width = width;
     let visible = {
         let mut views = shared.views.lock().unwrap();
-        views.content_size = Some((width, height));
+        views.content_size = Some((x, y, width, height));
         views
             .visible_index()
             .and_then(|i| views.defs.get(i).map(|d| d.id.clone()))
     };
     if let Some(webview) = visible.and_then(|id| service_webview(app, &id)) {
-        let rect = visible_rect(&window, Some((width, height)), width);
-        webview.set_bounds(rect).map_err(|e| e.to_string())?;
+        let rect = visible_rect(&window, Some((x, y, width, height)), width);
+        set_service_bounds(&webview, rect)?;
     }
     Ok(())
 }
