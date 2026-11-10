@@ -21,8 +21,18 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 
 <section>
 <h2>配布について</h2>
-<p>動作確認済みの deb パッケージを配布予定です。
-ダウンロードファイルと SHA-256 は準備後に掲載します。</p>
+<p>動作確認済みの Ubuntu／amd64 向け deb を公開しています。非公式修正版の第1版（v2.0.3-linux.1）です。</p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/AI-Browser_2.0.3_amd64.deb">deb をダウンロード（約10.3 MB）</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/SHA256SUMS">SHA256SUMS をダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.3-linux.1">リリース詳細</a></p>
+<p>deb と SHA256SUMS を同じフォルダへ保存し、次で照合できます。</p>
+<pre><code>sha256sum -c SHA256SUMS</code></pre>
+<p>確認した SHA-256：</p>
+<p><code style="overflow-wrap:anywhere">9c95c5fcf9a54df0b591df80782dae364a2f1c86c72fb8491f69d009b8a49e61</code></p>
+<h3>インストール</h3>
+<p>起動中の AI-Browser を終了し、設定・履歴の保存先 <code>~/.local/share/com.aibrowser.app/</code> をバックアップしてから、ダウンロード先で実行してください。</p>
+<pre><code>sudo apt install ./AI-Browser_2.0.3_amd64.deb</code></pre>
+<p>同じバージョンが既に入っている場合：</p>
+<pre><code>sudo apt install --reinstall ./AI-Browser_2.0.3_amd64.deb</code></pre>
 <p>AppImage は動作が安定しないため、公開を保留しています。</p>
 </section>
 
