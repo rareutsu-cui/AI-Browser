@@ -14,55 +14,60 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
-<p class="label">非公式 Ubuntu 向け修正版 ／ amd64</p>
+<p class="label">v2.0.3-linux.1 ／ 非公式 Linux版・独自ビルド ／ Ubuntu amd64</p>
 <h1>AI-Browser：Linux版<br>独自ビルド</h1>
-<p>AI-Browser v2.0.3 を基に、Ubuntu で使うために
-画面配置と起動時の読み込みを変更した自家版です。</p>
+<p>AI-Browser 2.0.3をベースにした、非公式のLinux版です。対象はUbuntu（amd64）です。</p>
 
 <section>
-<h2>配布について</h2>
-<p>動作確認済みの Ubuntu／amd64 向け deb を公開しています。非公式修正版の第1版（v2.0.3-linux.1）です。</p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/AI-Browser_2.0.3_amd64.deb">deb をダウンロード（約10.3 MB）</a></p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/SHA256SUMS">SHA256SUMS をダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.3-linux.1">リリース詳細</a></p>
-<p>deb と SHA256SUMS を同じフォルダへ保存し、次で照合できます。</p>
-<pre><code>sha256sum -c SHA256SUMS</code></pre>
-<p>確認した SHA-256：</p>
-<p><code style="overflow-wrap:anywhere">9c95c5fcf9a54df0b591df80782dae364a2f1c86c72fb8491f69d009b8a49e61</code></p>
-<h3>インストール</h3>
-<p>起動中の AI-Browser を終了し、設定・履歴の保存先 <code>~/.local/share/com.aibrowser.app/</code> をバックアップしてから、ダウンロード先で実行してください。</p>
-<pre><code>sudo apt install ./AI-Browser_2.0.3_amd64.deb</code></pre>
-<p>同じバージョンが既に入っている場合：</p>
-<pre><code>sudo apt install --reinstall ./AI-Browser_2.0.3_amd64.deb</code></pre>
-<p>AppImage は動作が安定しないため、公開を保留しています。</p>
+<h2>配布ファイル</h2>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/AI-Browser_2.0.3_amd64.deb">debをダウンロード（約10.3 MB）</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/SHA256SUMS">SHA256SUMSをダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.3-linux.1">リリース詳細</a></p>
 </section>
 
-<h2>変更したところ</h2>
+<h2>変更点</h2>
 <ul>
-<li>アドレスバー直下にチャットを表示するよう、Linux の WebView 配置を修正。</li>
-<li>エディタを開閉式の下部ペインへ変更。閉じても入力内容を保持。</li>
-<li>重複する寸法通知と再配置を抑制。</li>
-<li>チェック済みの AI だけを起動時に読み込み。設定変更は再起動後に反映。</li>
+<li>WebViewのレイアウトを変更し、チャットがアドレスバーの直下に表示されるようにしました。</li>
+<li>エディタを、閉じられる下部のペインにしました。閉じても入力内容は残ります。</li>
+<li>リサイズ通知の重複を抑えました。</li>
+<li>起動時に読み込むのは、有効にしたAIサービスだけです。設定変更は再起動後に反映されます。</li>
 </ul>
 
-<h2>確認できた動作</h2>
-<p>手元の Ubuntu 環境で deb 版の表示、下部エディタの開閉、
-Muse へのエディタ送信を確認しました。
-作業過程では内蔵ターミナルの入力と pwd の実行も確認しています。</p>
+<h2>動作確認</h2>
+<p>1つのUbuntu環境で、debパッケージのインストール後の表示、下部エディタ、エディタ内容のMuseへの送信を確認しました。</p>
 
-<h2>制限</h2>
-<p>すべての AI サービスのログイン・送信を確認したものではありません。
-Google 認証は別途確認が必要です。
-初回のエディタ開閉では、がたつきが残る可能性があります。</p>
+<h2>既知の制限</h2>
+<ul>
+<li>すべてのAIサービスについて、ログインと送信を確認したわけではありません。</li>
+<li>Googleサインインは、別途確認が必要です。</li>
+<li>エディタを初めて開くとき、動作がぎこちない場合があります。</li>
+<li>AppImageは動作が安定しないため、今回の配布対象はdebパッケージです。</li>
+</ul>
 
-<h2>非公式版・ライセンス</h2>
-<p>本ソフトウェアは、AI-Browser v2.0.3 を基に、Ubuntu 環境向けに
-再構成した非公式の自家版です。原作者・公式プロジェクトとは独立しており、
-公式の承認やサポートを示すものではありません。
-原著作権表示および MIT ライセンスを保持して配布します。</p>
-<p><a href="LICENSE.txt">原著作権表示・MIT ライセンス</a></p>
-<p>
-<a href="https://github.com/Jun-Murakami/AI-Browser">本家</a> ／
-<a href="https://github.com/rareutsu-cui/AI-Browser/tree/fix/linux-webview-layout">修正版ソース</a>
-</p>
+<h2>インストール</h2>
+<ol>
+<li>AI-Browserを終了します。</li>
+<li><code>~/.local/share/com.aibrowser.app/</code> をバックアップします。</li>
+<li>上の配布ファイルから <code>AI-Browser_2.0.3_amd64.deb</code> と <code>SHA256SUMS</code> を同じフォルダにダウンロードします。</li>
+<li>ダウンロード先のフォルダで、チェックサムを確認します。</li>
+</ol>
+<pre><code>sha256sum -c SHA256SUMS</code></pre>
+<p><code>AI-Browser_2.0.3_amd64.deb: OK</code> と表示されたら、次のコマンドでインストールします。</p>
+<pre><code>sudo apt install ./AI-Browser_2.0.3_amd64.deb</code></pre>
+<p>同じバージョンがすでに入っている場合：</p>
+<pre><code>sudo apt install --reinstall ./AI-Browser_2.0.3_amd64.deb</code></pre>
+
+<h2>チェックサム</h2>
+<p>SHA256SUMSを添付しています。ダウンロードしたファイルのチェックサムを照合し、配布ファイルと一致しているか確認できます。</p>
+<p>配布debのSHA-256：</p>
+<p><code>9c95c5fcf9a54df0b591df80782dae364a2f1c86c72fb8491f69d009b8a49e61</code></p>
+
+<h2>ライセンス・注意</h2>
+<ul>
+<li>これは非公式の独自ビルドで、元のプロジェクトとは独立しています。</li>
+<li>元の著作権表示とMITライセンスに従って配布しています。</li>
+</ul>
+<p><a href="LICENSE.txt">原著作権表示・MITライセンス</a></p>
+<p>元のプロジェクト：<a href="https://github.com/Jun-Murakami/AI-Browser">Jun-Murakami/AI-Browser</a></p>
+<p>ソースの変更ブランチ：<a href="https://github.com/rareutsu-cui/AI-Browser/tree/fix/linux-webview-layout">fix/linux-webview-layout</a></p>
 </body>
 </html>
