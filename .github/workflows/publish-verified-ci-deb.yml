@@ -1,0 +1,39 @@
+name: Publish verified CI deb 2.0.4-linux.2
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-verified-linux-2
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Download already verified build without rebuilding
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ai-browser-linux-amd64-1
+          run-id: 43625690481
+          github-token: ${{ github.token }}
+          path: package
+      - name: Verify exact package and publish prepared draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        working-directory: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$REPOSITORY" = 'rareutsu-cui/AI-Browser'
+          sha256sum -c SHA256SUMS
+          echo '558bc90c36e3bffc973e287b69e750adeb3bb9b02c9a111046be5e3c86e48f07  AI-Browser_2.0.4_amd64.deb' | sha256sum -c -
+          grep -Fx 'Source commit: ee1d677b48bb7df25e7a9c35daf70dcd751baa2c' BUILD-INFO.txt
+          gh api "repos/$REPOSITORY/releases/445527080" > release.json
+          jq -e '.draft == true and .tag_name == "v2.0.4-linux.2" and .target_commitish == "ee1d677b48bb7df25e7a9c35daf70dcd751baa2c"' release.json
+          gh release upload v2.0.4-linux.2 AI-Browser_2.0.4_amd64.deb SHA256SUMS BUILD-INFO.txt LICENSE.txt --repo "$REPOSITORY" --clobber
+          gh api "repos/$REPOSITORY/releases/445527080" > uploaded.json
+          jq -e '[.assets[].name] | sort == (["AI-Browser_2.0.4_amd64.deb", "SHA256SUMS", "BUILD-INFO.txt", "LICENSE.txt"] | sort)' uploaded.json
+          gh release edit v2.0.4-linux.2 --repo "$REPOSITORY" --draft=false --latest
