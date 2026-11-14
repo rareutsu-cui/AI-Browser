@@ -1,0 +1,108 @@
+name: Linux deb build
+run-name: Linux deb · ${{ inputs.source_ref }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 'ビルドするブランチ・タグ・コミット'
+        required: true
+        default: fix/linux-webview-layout
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-deb-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Check out selected source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_ref }}
+          persist-credentials: false
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libglib2.0-dev libgtk-3-dev \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev \
+            librsvg2-dev patchelf libssl-dev \
+            gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Set up Rust stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --locked
+
+      - name: Build deb only
+        run: npm run tauri -- build --ci --bundles deb
+
+      - name: Collect package and checksums
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- package-lock.json src-tauri/Cargo.lock
+          mkdir -p artifacts
+          shopt -s nullglob
+          packages=(src-tauri/target/release/bundle/deb/*.deb)
+          if (( ${#packages[@]} == 0 )); then
+            echo 'deb package was not generated' >&2
+            exit 1
+          fi
+          cp "${packages[@]}" artifacts/
+          cp LICENSE.txt artifacts/LICENSE.txt
+          {
+            printf 'Repository: %s\n' "$GITHUB_REPOSITORY"
+            printf 'Source ref: %s\n' "$SOURCE_REF"
+            printf 'Source commit: %s\n' "$(git rev-parse HEAD)"
+            printf 'Workflow run: https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+            printf 'Built at (UTC): %s\n' "$(date -u +%FT%TZ)"
+            cat /etc/os-release
+            node --version
+            rustc --version
+            cargo --version
+            pkg-config --modversion gtk+-3.0 webkit2gtk-4.1
+            for package in "${packages[@]}"; do
+              dpkg-deb -f "$package" Package Version Architecture Depends
+            done
+          } > artifacts/BUILD-INFO.txt
+          (cd artifacts && sha256sum -- *.deb > SHA256SUMS && sha256sum -c SHA256SUMS)
+
+      - name: Upload build for manual verification
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ai-browser-linux-amd64-${{ github.run_number }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 14
