@@ -211,6 +211,11 @@ fn on_service_page_load<R: Runtime>(
     );
 
     if !is_loading {
+        // Linux のサービス画面だけに適用。UI、Monaco、ターミナルは変更しない。
+        #[cfg(target_os = "linux")]
+        if let Err(error) = webview.eval(include_str!("../scripts/hide-chat-scrollbars.js")) {
+            log::warn!("スクロールバー表示の変更に失敗: {}: {error}", webview.label());
+        }
         log::info!(
             "読み込み完了: {} ({})",
             webview.label(),
