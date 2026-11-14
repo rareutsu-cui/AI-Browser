@@ -54,6 +54,7 @@ interface EditorToolbarProps {
   commandKey: string;
   isInitialized: boolean;
   activeTab: Tab | null;
+  visibleTabs: Tab[];
   isTerminalActive: boolean;
   fontSizeOptions: number[];
   sendTargets: Record<string, boolean>;
@@ -102,6 +103,7 @@ export function EditorToolbar({
   commandKey,
   isInitialized,
   activeTab,
+  visibleTabs,
   isTerminalActive,
   fontSizeOptions,
   sendTargets,
@@ -188,8 +190,11 @@ export function EditorToolbar({
   };
 
   // 一括送信対象のブラウザタブ（ターミナルとNANIを除外）
+  const enabledBrowserIds = new Set(
+    visibleTabs.filter((tab) => tab.type === 'browser').map((tab) => tab.id),
+  );
   const sendTargetBrowsers = BROWSERS.filter(
-    (b) => !EXCLUDED_SEND_TARGET_IDS.has(b.id),
+    (b) => enabledBrowserIds.has(b.id) && !EXCLUDED_SEND_TARGET_IDS.has(b.id),
   );
 
   // チェックされている送信対象の数

@@ -518,6 +518,7 @@ export const HomePage = ({ darkMode, setDarkMode }: HomePageProps) => {
             commandKey={commandKey}
             isInitialized={isInitialized}
             activeTab={activeTab}
+            visibleTabs={visibleTabs}
             isTerminalActive={isTerminalActive}
             logs={logs}
             selectedLog={selectedLog}

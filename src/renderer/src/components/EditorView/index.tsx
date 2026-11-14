@@ -27,6 +27,7 @@ interface EditorViewProps {
   commandKey: string;
   isInitialized: boolean;
   activeTab: Tab | null;
+  visibleTabs: Tab[];
   isTerminalActive: boolean;
 
   // ログ関連
@@ -103,6 +104,7 @@ export const EditorView = forwardRef<HTMLDivElement, EditorViewProps>(
       commandKey,
       isInitialized,
       activeTab,
+      visibleTabs,
       isTerminalActive,
       logs,
       selectedLog,
@@ -217,6 +219,7 @@ export const EditorView = forwardRef<HTMLDivElement, EditorViewProps>(
           commandKey={commandKey}
           isInitialized={isInitialized}
           activeTab={activeTab}
+          visibleTabs={visibleTabs}
           isTerminalActive={isTerminalActive}
           fontSizeOptions={fontSizeOptions}
           onFontSizeChange={onFontSizeChange}

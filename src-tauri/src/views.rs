@@ -350,7 +350,7 @@ pub fn send_text<R: Runtime>(
         };
         let current_url = webview.url().map(|u| u.to_string()).unwrap_or_default();
         let should_send = (send_to_all && targets.get(&def.id) != Some(&false))
-            || (current_index == i && def.matches(&current_url));
+            || (!send_to_all && current_index == i && def.matches(&current_url));
         if !should_send {
             continue;
         }
