@@ -14,18 +14,21 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
-<p class="label">v2.0.4-linux.1 ／ 非公式 Linux版・独自ビルド ／ Ubuntu amd64</p>
+<p class="label">v2.0.4-linux.2 ／ 非公式 Linux版・独自ビルド ／ Ubuntu amd64</p>
 <h1>AI-Browser：Linux版<br>独自ビルド</h1>
 <p>AI-Browser 2.0.3をベースにした、非公式のLinux版です。対象はUbuntu（amd64）です。</p>
 
 <section>
-<h2>配布ファイル</h2>
-<p>独自版2.0.4。本家2.0.3を基にした非公式版です。Ubuntu 26.04.1 LTS（amd64）でビルドしました。</p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_amd64.deb">debをダウンロード（約10.3 MB）</a></p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_linux_amd64.tar.gz">実行バイナリ tar.gz（約10.6 MB）</a></p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_source.tar.gz">ソースコード tar.gz</a></p>
-<p>バイナリtar.gzは展開して <code>./ai-browser</code> で起動します。WebKitGTK 4.1・GTK 3とその依存ライブラリが必要です。</p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/SHA256SUMS">SHA256SUMSをダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.4-linux.1">リリース詳細</a></p>
+<h2>配布ファイル：GitHub Actions生成版</h2>
+<p>独自版2.0.4の第2版（v2.0.4-linux.2）。GitHub ActionsのUbuntu 24.04環境でビルドしたamd64向けdebです。本家2.0.3を基にした非公式版です。</p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.2/AI-Browser_2.0.4_amd64.deb">CI版debをダウンロード（約10.3 MB）</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.2/SHA256SUMS">CI版SHA256SUMS</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.2/BUILD-INFO.txt">ビルド環境・ソースコミット</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.4-linux.2">第2版のリリース詳細</a></p>
+<p>バージョン表記は引き続き2.0.4です。以前の2.0.4を入れ替える場合は、下記の再インストール手順を使用してください。</p>
+<h3>以前のローカルビルド：v2.0.4-linux.1</h3>
+<p>次のtar.gzはUbuntu 26.04で作成した旧ビルドです。上のCI生成debとは異なり、チェックサムも別です。</p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_linux_amd64.tar.gz">旧実行バイナリ tar.gz</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_source.tar.gz">旧ビルドのソース tar.gz</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/SHA256SUMS">旧ビルド用SHA256SUMS</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.4-linux.1">第1版・旧deb</a></p>
+<p>バイナリtar.gzは展開して <code>./ai-browser</code> で起動します。WebKitGTK 4.1・GTK 3とその依存ライブラリが必要です。Ubuntu以外での動作は未確認です。</p>
 </section>
 
 <h2>2.0.4の変更点</h2>
@@ -43,7 +46,7 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 </ul>
 
 <h2>動作確認</h2>
-<p>2.0.4は型チェック・本番ビルド・debのバージョン確認を通過しています。開発版のChatGPT・Museの読み込み完了はユーザーの起動ログで確認しました。今回の配布バイナリのGUI動作・インストール後の動作は未確認です。</p>
+<p>第2版のCI生成debは型検査・Rustテスト15件・debビルド・SHA-256照合を通過しています。ユーザーのUbuntu実機へのインストールが完了し、今回の起動ではフレーム周りのがたつきが出なかったとの報告を得ています。すべての操作や起動条件を検証したものではありません。</p>
 <p>以前の2.0.3独自版では、手元のUbuntu環境でdebの表示・下部エディタ・Museへの送信を確認しています。他のUbuntuバージョンやディストリビューションでの互換性は未確認です。</p>
 
 <h2>既知の制限</h2>
@@ -51,7 +54,7 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 <li>すべてのAIサービスについて、ログインと送信を確認したわけではありません。</li>
 <li>Googleサインインは、別途確認が必要です。</li>
 <li>エディタを初めて開くとき、動作がぎこちない場合があります。</li>
-<li>AppImageは動作が安定しないため、今回の配布対象はdebとtar.gzです。</li>
+<li>AppImageは動作が安定しないため公開保留です。最新版のCI生成物はdebのみで、tar.gzは以前のローカルビルドを別枠で掲載しています。</li>
 </ul>
 
 <h2>インストール</h2>
@@ -69,8 +72,8 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 
 <h2>チェックサム</h2>
 <p>SHA256SUMSを添付しています。ダウンロードしたファイルのチェックサムを照合し、配布ファイルと一致しているか確認できます。</p>
-<p>配布debのSHA-256：</p>
-<p><code>29fe1640f9fbbef85c11f6be3eeb45cbe230689d9d93cf5349d02862ddbc3677</code></p>
+<p>第2版CI生成debのSHA-256（旧tar.gzには旧ビルド用SHA256SUMSを使用してください）：</p>
+<p><code>558bc90c36e3bffc973e287b69e750adeb3bb9b02c9a111046be5e3c86e48f07</code></p>
 
 <h2>ライセンス・注意</h2>
 <ul>
