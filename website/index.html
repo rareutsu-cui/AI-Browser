@@ -14,17 +14,27 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 </style>
 </head>
 <body>
-<p class="label">v2.0.3-linux.1 ／ 非公式 Linux版・独自ビルド ／ Ubuntu amd64</p>
+<p class="label">v2.0.4-linux.1 ／ 非公式 Linux版・独自ビルド ／ Ubuntu amd64</p>
 <h1>AI-Browser：Linux版<br>独自ビルド</h1>
 <p>AI-Browser 2.0.3をベースにした、非公式のLinux版です。対象はUbuntu（amd64）です。</p>
 
 <section>
 <h2>配布ファイル</h2>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/AI-Browser_2.0.3_amd64.deb">debをダウンロード（約10.3 MB）</a></p>
-<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.3-linux.1/SHA256SUMS">SHA256SUMSをダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.3-linux.1">リリース詳細</a></p>
+<p>独自版2.0.4。本家2.0.3を基にした非公式版です。Ubuntu 26.04.1 LTS（amd64）でビルドしました。</p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_amd64.deb">debをダウンロード（約10.3 MB）</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_linux_amd64.tar.gz">実行バイナリ tar.gz（約10.6 MB）</a></p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/AI-Browser_2.0.4_source.tar.gz">ソースコード tar.gz</a></p>
+<p>バイナリtar.gzは展開して <code>./ai-browser</code> で起動します。WebKitGTK 4.1・GTK 3とその依存ライブラリが必要です。</p>
+<p><a href="https://github.com/rareutsu-cui/AI-Browser/releases/download/v2.0.4-linux.1/SHA256SUMS">SHA256SUMSをダウンロード</a> ／ <a href="https://github.com/rareutsu-cui/AI-Browser/releases/tag/v2.0.4-linux.1">リリース詳細</a></p>
 </section>
 
-<h2>変更点</h2>
+<h2>2.0.4の変更点</h2>
+<ul>
+<li>チャットとエディタのスクロールバー表示を調整しました。</li>
+<li>チャット内の子フレームにも表示スタイルを適用しました。</li>
+<li>送信先メニューを有効なAIタブに合わせ、一括送信の選択を反映しました。</li>
+</ul>
+<h2>これまでの変更点</h2>
 <ul>
 <li>WebViewのレイアウトを変更し、チャットがアドレスバーの直下に表示されるようにしました。</li>
 <li>エディタを、閉じられる下部のペインにしました。閉じても入力内容は残ります。</li>
@@ -33,33 +43,34 @@ a{color:#8870ff}code{overflow-wrap:anywhere}
 </ul>
 
 <h2>動作確認</h2>
-<p>1つのUbuntu環境で、debパッケージのインストール後の表示、下部エディタ、エディタ内容のMuseへの送信を確認しました。</p>
+<p>2.0.4は型チェック・本番ビルド・debのバージョン確認を通過しています。開発版のChatGPT・Museの読み込み完了はユーザーの起動ログで確認しました。今回の配布バイナリのGUI動作・インストール後の動作は未確認です。</p>
+<p>以前の2.0.3独自版では、手元のUbuntu環境でdebの表示・下部エディタ・Museへの送信を確認しています。他のUbuntuバージョンやディストリビューションでの互換性は未確認です。</p>
 
 <h2>既知の制限</h2>
 <ul>
 <li>すべてのAIサービスについて、ログインと送信を確認したわけではありません。</li>
 <li>Googleサインインは、別途確認が必要です。</li>
 <li>エディタを初めて開くとき、動作がぎこちない場合があります。</li>
-<li>AppImageは動作が安定しないため、今回の配布対象はdebパッケージです。</li>
+<li>AppImageは動作が安定しないため、今回の配布対象はdebとtar.gzです。</li>
 </ul>
 
 <h2>インストール</h2>
 <ol>
 <li>AI-Browserを終了します。</li>
 <li><code>~/.local/share/com.aibrowser.app/</code> をバックアップします。</li>
-<li>上の配布ファイルから <code>AI-Browser_2.0.3_amd64.deb</code> と <code>SHA256SUMS</code> を同じフォルダにダウンロードします。</li>
+<li>上の配布ファイルから <code>AI-Browser_2.0.4_amd64.deb</code> と <code>SHA256SUMS</code> を同じフォルダにダウンロードします。</li>
 <li>ダウンロード先のフォルダで、チェックサムを確認します。</li>
 </ol>
-<pre><code>sha256sum -c SHA256SUMS</code></pre>
-<p><code>AI-Browser_2.0.3_amd64.deb: OK</code> と表示されたら、次のコマンドでインストールします。</p>
-<pre><code>sudo apt install ./AI-Browser_2.0.3_amd64.deb</code></pre>
+<pre><code>sha256sum --ignore-missing -c SHA256SUMS</code></pre>
+<p><code>AI-Browser_2.0.4_amd64.deb: OK</code> と表示されたら、次のコマンドでインストールします。</p>
+<pre><code>sudo apt install ./AI-Browser_2.0.4_amd64.deb</code></pre>
 <p>同じバージョンがすでに入っている場合：</p>
-<pre><code>sudo apt install --reinstall ./AI-Browser_2.0.3_amd64.deb</code></pre>
+<pre><code>sudo apt install --reinstall ./AI-Browser_2.0.4_amd64.deb</code></pre>
 
 <h2>チェックサム</h2>
 <p>SHA256SUMSを添付しています。ダウンロードしたファイルのチェックサムを照合し、配布ファイルと一致しているか確認できます。</p>
 <p>配布debのSHA-256：</p>
-<p><code>9c95c5fcf9a54df0b591df80782dae364a2f1c86c72fb8491f69d009b8a49e61</code></p>
+<p><code>29fe1640f9fbbef85c11f6be3eeb45cbe230689d9d93cf5349d02862ddbc3677</code></p>
 
 <h2>ライセンス・注意</h2>
 <ul>
