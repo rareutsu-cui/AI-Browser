@@ -179,6 +179,11 @@ pub fn create_all<R: Runtime>(app: &AppHandle<R>, defs: Vec<BrowserDef>) -> Resu
             // OAuth のポップアップなどが動くよう、window.open は WebView の既定動作に任せる
             // （Electron 版も WebContentsView の window.open は既定動作だった）
             .on_new_window(|_url, _features| NewWindowResponse::Allow);
+        // メイン文書だけでなく、子フレームにも表示用CSSを適用する。
+        #[cfg(target_os = "linux")]
+        let builder = builder.initialization_script_for_all_frames(include_str!(
+            "../scripts/hide-chat-scrollbars.js"
+        ));
         window
             .add_child(with_browser_args(builder), rect.position, rect.size)
             .map_err(|e| format!("{}: {e}", def.id))?;

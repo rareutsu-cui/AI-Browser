@@ -153,6 +153,16 @@ export const MonacoEditor = ({
       renderValidationDecorations: 'off',
       showUnused: false,
       scrollBeyondLastLine: false,
+      scrollbar: {
+        vertical: 'hidden',
+        horizontal: 'hidden',
+        verticalScrollbarSize: 0,
+        horizontalScrollbarSize: 0,
+        handleMouseWheel: true,
+        useShadows: false,
+      },
+      overviewRulerLanes: 0,
+      hideCursorInOverviewRuler: true,
       renderLineHighlightOnlyWhenFocus: true,
       unicodeHighlight: {
         allowedLocales: { _os: true, _vscode: true },
